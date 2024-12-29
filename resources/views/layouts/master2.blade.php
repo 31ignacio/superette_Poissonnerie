@@ -401,7 +401,7 @@
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <div class="float-right d-none d-sm-block">
-                <b>Version</b> 1.0.5
+                <b>Version</b> 1.0.6
             </div>
             <strong>Copyright &copy; 2025 <a href="">Ari </a>Expertiz</strong>
         </footer>
@@ -665,7 +665,7 @@
     </script>
 
 
-    @if (Session::has('success_message') || Session::has('error_message'))
+    {{-- @if (Session::has('success_message') || Session::has('error_message'))
     <script>
         $(function() {
             var Toast = Swal.mixin({
@@ -682,7 +682,36 @@
             });
         });
     </script>
-    @endif
+    @endif --}}
+
+    @if (Session::has('success_message') || Session::has('error_message'))
+    <script>
+        $(function() {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true, // Affiche une barre de progression
+                customClass: {
+                    popup: 'shadow-lg rounded-pill', // Styles personnalisés
+                },
+                didOpen: (toast) => {
+                    toast.style.padding = '20px'; // Espacement supplémentaire
+                }
+            });
+
+            // Détermine le type d'alerte (success ou error)
+            Toast.fire({
+                icon: "{{ Session::has('success_message') ? 'success' : 'error' }}",
+                title: "<strong style='font-size: 16px;'>{{ Session::get('success_message') ?? Session::get('error_message') }}</strong>", // Texte amélioré
+                background: '#f9f9f9', // Couleur de fond plus douce
+                color: '#333', // Couleur du texte
+            });
+        });
+    </script>
+@endif
+
 
 </body>
 
