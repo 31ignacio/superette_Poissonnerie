@@ -665,25 +665,6 @@
     </script>
 
 
-    {{-- @if (Session::has('success_message') || Session::has('error_message'))
-    <script>
-        $(function() {
-            var Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 5000
-            });
-
-            // Détermine le type d'alerte (success ou error)
-            Toast.fire({
-                icon: "{{ Session::has('success_message') ? 'success' : 'error' }}",
-                title: "{{ Session::get('success_message') ?? Session::get('error_message') }}" // Récupère success ou error
-            });
-        });
-    </script>
-    @endif --}}
-
     @if (Session::has('success_message') || Session::has('error_message'))
     <script>
         $(function() {
@@ -711,7 +692,6 @@
         });
     </script>
 @endif
-
 
 </body>
 

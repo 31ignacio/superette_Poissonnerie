@@ -163,8 +163,6 @@
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
                         </div>
-
-                    
                     </div>
 
                     <div class="row">
@@ -177,10 +175,7 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-
                     </div>
-                
-
                     <div class="row">
                       
                         <div class="col-md-12">
@@ -201,13 +196,8 @@
                             @error('ville')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
-
-
-                        
+                        </div>                
                     </div>
-                
-                
                 </div>
                 <!-- /.card-body -->
 

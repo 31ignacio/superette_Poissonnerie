@@ -261,8 +261,6 @@
                       <input type="text" class="form-control" id="libelle" name="libelle" value="{{ $produit->libelle }}" style="border-radius: 10px;" required>
                   </div>
 
-                  
-
                   <!-- Prix -->
                   <div class="mb-3 col-md-6">
                       <label for="prix" class="form-label">Prix</label>

@@ -53,7 +53,9 @@ class AdminController extends Controller
         }
     }
 
-   
+   /**
+    * Déconnecté un utilisateur
+    */
     public function logout(){
 
         FacadesSession::flush();
@@ -62,7 +64,9 @@ class AdminController extends Controller
         return redirect()->route('login');
     }
 
-
+    /**
+     * Modifier un utilisateur
+     */
     public function update(User $admin, Request $request)
     {
         //Enregistrer un nouveau département
@@ -82,7 +86,9 @@ class AdminController extends Controller
     }
 
 
-
+    /**
+     * Supprimer un utilisateur
+     */
     public function delete(User $admin)
     {
         //Enregistrer un nouveau département
@@ -96,13 +102,16 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     *  Activer/desactiver un utilisateur
+     * */ 
     public function toggleStatus(User $admin)
-{
-    $admin->estActif = !$admin->estActif; // Bascule entre 0 et 1
-    $admin->save();
+    {
+        $admin->estActif = !$admin->estActif; // Bascule entre 0 et 1
+        $admin->save();
 
-    return redirect()->back()->with('success_message', 'Statut mis à jour avec succès.');
-}
+        return redirect()->back()->with('success_message', 'Statut mis à jour avec succès.');
+    }
 
 
 }

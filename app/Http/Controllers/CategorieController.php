@@ -31,7 +31,7 @@ class CategorieController extends Controller
         
             $categorie->save();
 
-            return back()->with('success_message', 'Client enregistré avec succès');
+            return back()->with('success_message', 'Catégorie enregistré avec succès');
 
         } catch (Exception $e) {
            
