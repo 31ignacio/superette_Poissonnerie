@@ -162,7 +162,7 @@
                             <tr>
                                 <th>Montant perçu</th>
                                 <td class="d-flex">
-                                    <input type="text" class="form-control mr-2" id="montantPaye" required
+                                    <input type="text" class="form-control mr-2" id="ccccccccc" required
                                         oninput="ajouterValider()">
                                     {{-- <a href="#" class="btn btn-sm btn-success"><i class="fas fa-check"></i></a> --}}
                                 </td>
@@ -347,14 +347,12 @@
             var produitType = document.getElementById("produitType").value;
             var remise = document.getElementById("remise").value;
             var montantFinal = document.getElementById("montantFinal").value;
-        //  alert(montantPaye)
-            //alert(totalTTC)
 
             if (produitType == "") {
                 $('#msg30').html(`
-        <p class="text-danger">
-            <strong>Veuillez remplir tous les champs obligatoires.</strong>
-        </p>`);
+                <p class="text-danger">
+                    <strong>Veuillez remplir tous les champs obligatoires.</strong>
+                </p>`);
 
                 // Masquer le message après 3 secondes
                 setTimeout(function() {

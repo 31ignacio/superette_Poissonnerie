@@ -398,8 +398,6 @@ class StockController extends Controller
     }
 
 
-
-
     public function actuelGros()
     {
         
@@ -501,7 +499,6 @@ class StockController extends Controller
 
         return redirect()->route('stock.entrerPoissonerie')->with('success_message', 'Stock entrés avec succès.');
     }
-
 
 
     public function storeGros(Request $request)

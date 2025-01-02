@@ -16,6 +16,8 @@
             <div class="row">
                 <div class="col-12 mt-4">
 
+                    
+
                     <div class="card" id="my-table"><br>
                         <div class="row">
                             <div class="col-12">
@@ -30,41 +32,29 @@
                         </div>
 
                         <div class="card-header">
-                            <h5 class="text-center"><b> Écart d'inventaire gros du {{ date('d/m/Y', strtotime($today)) }}</b></h5>
+                            <h5 class="text-center"><b> Écart d'inventaire Gros du {{ date('d/m/Y', strtotime($today)) }}</b></h5>
                         </div>
 
                         <!-- /.card-header -->
                         <div class="card-body">
-                            @php
-                            $totalMontant = 0;
-                            @endphp
-                            <table class="table table-bordered table-responsive">
-                                <thead>
-                                    <tr>
-                                        <th>Produits</th>
-                                        <th>Stock actuel</th>
-                                        <th>PU</th>
-                                        <th>Type</th>
-                                        <th hidden>Montant</th>
-                                        <th>Stock Physique</th>
-                                        <th>Écart d'Inventaire</th>
-                                        <th hidden>Montant P</th>
-                                        <th>Montant d'écart</th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody>
-                                    @foreach ($produits as $produit)
-                                        <?php
-                                            // Calculer le montant pour ce produit
-                                            $montant = $produit->prix * $produit->stock_actuel;
-                                            $totalMontant += $montant; // Ajouter le montant au total
-                                            $montant_format = number_format($montant, 0, ',', '.');
-                                        ?>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead class="text-black">
+                                        <tr>
+                                            <th>Produits</th>
+                                            <th>Type</th>
+                                            <th>Stock actuel</th>
+                                            <th>Stock Physique</th>
+                                            <th>Écart d'Inventaire</th>
+                                            <th>PU</th>
+                                            <th>Montant d'écart</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventaireTableBody">
+                                        @foreach ($produits as $produit)
                                         <tr>
                                             <td>{{ $produit->libelle }}</td>
-                                            <td>{{ $produit->stock_actuel }}</td>
-                                            <td>{{ $produit->prix }}</td>
                                             <td>
                                                 @if( $produit->produitType_id == 1)
                               
@@ -79,33 +69,52 @@
                                                 @endif
 
                                             </td>
-                                            <td hidden>
-                                                <b class="info-box-number montant-produit">{{ $montant_format }} FCFA</b>
-                                            </td>
+                                            <td>{{ number_format($produit->stock_actuel, 2, ',', ' ') }}</td>
                                             <td>
-                                                <input type="number" class="form-control stock-physique" data-stock-actuel="{{ $produit->stock_actuel }}" data-prix="{{ $produit->prix }}" placeholder="Saisir le stock physique">
+                                                <input type="number" step="0.01" class="form-control stock-physique" 
+                                                    data-stock-actuel="{{ $produit->stock_actuel }}" 
+                                                    data-prix="{{ $produit->prix }}" 
+                                                    placeholder="Saisir le stock physique">
                                             </td>
-                                            <td class="ecart-inventaire">0</td>
-                                            <td class="montant-physique" hidden>
-                                                <b class="info-box-number">0 FCFA</b>
-                                            </td>
-                                            <td>
-                                                <b class="info-box-number difference-montant">{{ $montant_format }} </b>
-                                            </td>
+                                            <td class="ecart-inventaire">0.00</td>
+                                            <td>{{ number_format($produit->prix, 2, ',', ' ') }} FCFA</td>
+                                            <td class="montant-ecart">0.00 FCFA</td>
                                         </tr>
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-
-                            <div class="row">
-                                <div class="col-md-8"></div>
-                                <div class="col-md-4 total-container">
-                                    <span class="total-label">Ecart :</span>
-                                    <div class="total-amount" id="total-montant"></div>
-                                </div>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-light">
+                                        <tr>
+                                            <td colspan="5" class="text-right font-weight-bold">Total Montant d'écart :</td>
+                                            <td id="totalEcart" class="font-weight-bold text-danger">0.00 FCFA</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
+                            
+                            <!-- Bouton pour afficher les produits avec écart -->
+                            <div class="mt-3">
+                                <button class="btn btn-warning" id="afficherEcart">Afficher les produits avec écart d'inventaire</button>
+                            </div>
+                            
+                            <!-- Tableau des produits avec écart -->
+                            <div id="produitsAvecEcartTable" class="table-responsive mt-4" style="display: none;">
+                                <h5 class="text-center text-danger">Produits avec écart d'inventaire</h5>
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead class="bg-danger text-dark">
+                                        <tr>
+                                            <th>Produits</th>
+                                            <th>Stock actuel</th>
+                                            <th>Stock Physique</th>
+                                            <th>Écart d'Inventaire</th>
+                                            <th>PU</th>
+                                            <th>Montant d'écart</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ecartsProduitsBody"></tbody>
+                                </table>
+                            </div>
+                            
+                            
 
                         </div>
                         <!-- /.card-body -->
@@ -120,172 +129,163 @@
         <!-- /.container-fluid -->
     </section>
     <!-- JavaScript -->
-
-    <!-- css pour ecart en bas -->
-    <style>
-        .montant-rouge{
-            color:red;
-        }
-        .total-container {
-            font-size: 25px;
-            display: flex;
-            align-items: center;
-        }
-        .total-label {
-            margin-right: 10px;
-        }
-        .total-amount {
-            font-size: 20px;
-            color: white;
-            background-color: red;
-            border-radius: 10px;
-            padding: 5px 10px;
-        }
-    </style>
-
-    <!-- total ecart -->
-
+    {{-- Mon js pour inventaire --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const stockPhysiqueInputs = document.querySelectorAll('.stock-physique');
+        document.addEventListener("DOMContentLoaded", () => {
+            const inputs = document.querySelectorAll(".stock-physique");
+            const totalEcartElement = document.getElementById("totalEcart");
+            const afficherEcartButton = document.getElementById("afficherEcart");
+            const ecartsProduitsBody = document.getElementById("ecartsProduitsBody");
 
-            stockPhysiqueInputs.forEach(input => {
-                input.addEventListener('input', function () {
-                    const stockActuel = parseFloat(this.getAttribute('data-stock-actuel'));
-                    const prix = parseFloat(this.getAttribute('data-prix'));
-                    const stockPhysique = parseFloat(this.value) || 0;
-                    const ecart = stockPhysique - stockActuel;
+            let totalEcart = 0;
 
-                    // Mettre à jour l'écart d'inventaire
-                    const ecartCell = this.parentElement.nextElementSibling;
-                    ecartCell.textContent = ecart;
+            // Gérer les changements dans les champs de stock physique
+            inputs.forEach(input => {
+                input.addEventListener("input", () => {
+                    const row = input.closest("tr");
+                    const stockActuel = parseFloat(input.dataset.stockActuel || 0).toFixed(2);
+                    const prix = parseFloat(input.dataset.prix || 0).toFixed(2);
+                    const stockPhysique = parseFloat(input.value || 0).toFixed(2);
 
-                    // Calculer et mettre à jour le montant physique
-                    const montantPhysiqueCell = ecartCell.nextElementSibling.querySelector('.info-box-number');
-                    const montantPhysique = prix * stockPhysique;
-                    montantPhysiqueCell.textContent = new Intl.NumberFormat('fr-FR').format(montantPhysique) + ' FCFA';
+                    // Calcul de l'écart
+                    const ecart = (stockPhysique - stockActuel).toFixed(2);
+                    const montantEcart = (ecart * prix).toFixed(2);
 
-                    // Calculer la différence de montant
-                    const montantProduitCell = this.parentElement.previousElementSibling.querySelector('.montant-produit').textContent;
-                    const montantProduit = parseFloat(montantProduitCell.replace(/\D/g, ''));
-                    const differenceMontant = montantProduit - montantPhysique;
+                    // Mettre à jour les cellules correspondantes
+                    row.querySelector(".ecart-inventaire").textContent = parseFloat(ecart).toLocaleString("fr-FR", { minimumFractionDigits: 2 });
+                    const montantCell = row.querySelector(".montant-ecart");
+                    montantCell.textContent = `${parseFloat(montantEcart).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} FCFA`;
 
-                    // Mettre à jour la différence de montant avec signe si négatif
-                    const differenceMontantCell = montantPhysiqueCell.parentElement.nextElementSibling.querySelector('.difference-montant');
-                    const differenceMontantFormatted = differenceMontant < 0 
-                        ? '-' + new Intl.NumberFormat('fr-FR').format(Math.abs(differenceMontant))
-                        : new Intl.NumberFormat('fr-FR').format(differenceMontant);
+                    // Ajouter ou supprimer la classe rouge si montantEcart est 0
+                    if (parseFloat(montantEcart) === 0) {
+                        montantCell.classList.add("text-danger");
+                    } else {
+                        montantCell.classList.remove("text-danger");
+                    }
 
-                    differenceMontantCell.textContent = differenceMontantFormatted + ' FCFA';
-                    differenceMontantCell.classList.add('montant-rouge');
-
-                    // Recalculer la somme totale des montants
-                    updateTotalMontant();
+                    // Recalculer le total des écarts
+                    recalculerTotalEcart();
                 });
             });
 
-            function updateTotalMontant() {
-                // Sélectionnez tous les éléments avec la classe difference-montant
-                const montantElements = document.querySelectorAll('.difference-montant');
+            // Fonction pour recalculer le total des montants d'écart
+            function recalculerTotalEcart() {
+                totalEcart = 0;
 
-                // Initialisez la somme totale à zéro
-                let totalMontant = 0;
-
-                // Parcourez chaque élément et ajoutez son montant à la somme totale
-                montantElements.forEach(element => {
-                    // Récupérez le texte de l'élément et supprimez ' FCFA' s'il est présent
-                    const montantText = element.textContent.replace(' FCFA', '');
-
-                    // Convertissez le texte en nombre en supprimant les séparateurs de milliers et en remplaçant la virgule par un point
-                    const montant = parseFloat(montantText.replace(/\s|FCFA/g, '').replace(',', '.'));
-
-                    // Ajoutez le montant à la somme totale
-                    totalMontant += montant;
+                document.querySelectorAll(".montant-ecart").forEach(cell => {
+                    const montant = parseFloat(cell.textContent.replace(/[^\d.-]/g, "")) || 0;
+                    totalEcart += montant;
                 });
 
-                // Affichez la somme totale en bas de la colonne
-                const totalMontantElement = document.getElementById('total-montant');
-                totalMontantElement.textContent = new Intl.NumberFormat('fr-FR').format(totalMontant) + ' FCFA';
+                totalEcartElement.textContent = `${totalEcart.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} FCFA`;
             }
 
-            // Appeler la fonction pour afficher la somme initiale
-            updateTotalMontant();
-        });
-    </script>
+            // Afficher les produits avec un écart d'inventaire
+            afficherEcartButton.addEventListener("click", () => {
+                ecartsProduitsBody.innerHTML = ""; // Réinitialiser le tableau
 
+                document.querySelectorAll("#inventaireTableBody tr").forEach(row => {
+                    const ecart = parseFloat(row.querySelector(".ecart-inventaire").textContent.replace(",", ".") || 0);
 
-    <!-- tableau ecart -->
+                    if (ecart !== 0) {
+                        const produit = row.querySelector("td:first-child").textContent;
+                        const stockActuel = row.querySelector("td:nth-child(2)").textContent;
+                        const stockPhysique = row.querySelector(".stock-physique").value;
+                        const prix = row.querySelector("td:nth-child(5)").textContent;
+                        const montantEcart = row.querySelector(".montant-ecart").textContent;
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const stockPhysiqueInputs = document.querySelectorAll('.stock-physique');
+                        // Créer une nouvelle ligne pour le tableau des écarts
+                        const newRow = document.createElement("tr");
+                        newRow.innerHTML = `
+                            <td>${produit}</td>
+                            <td>${stockActuel}</td>
+                            <td>${parseFloat(stockPhysique).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}</td>
+                            <td class="text-danger font-weight-bold">${ecart.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}</td>
+                            <td>${prix}</td>
+                            <td class="text-danger font-weight-bold">${montantEcart}</td>
+                        `;
 
-            stockPhysiqueInputs.forEach(input => {
-                input.addEventListener('input', function () {
-                    const stockActuel = parseFloat(this.getAttribute('data-stock-actuel'));
-                    const prix = parseFloat(this.getAttribute('data-prix'));
-                    const stockPhysique = parseFloat(this.value) || 0;
-                    const ecart = stockPhysique - stockActuel;
-
-                    // Mettre à jour l'écart d'inventaire
-                    const ecartCell = this.parentElement.nextElementSibling;
-                    ecartCell.textContent = ecart;
-
-                    // Calculer et mettre à jour le montant physique
-                    const montantPhysiqueCell = ecartCell.nextElementSibling.querySelector('.info-box-number');
-                    const montantPhysique = prix * stockPhysique;
-                    montantPhysiqueCell.textContent = new Intl.NumberFormat('fr-FR').format(montantPhysique) + ' FCFA';
-
-                    // Calculer la différence de montant
-                    const montantProduitCell = this.parentElement.previousElementSibling.querySelector('.montant-produit').textContent;
-                    const montantProduit = montantProduitCell.replace(/\D/g,'');
-                    const differenceMontant = montantProduit - montantPhysique;
-                    console.log(montantProduit,montantPhysique,differenceMontant);
-
-                    // Mettre à jour la différence de montant
-                    const differenceMontantCell = montantPhysiqueCell.parentElement.nextElementSibling.querySelector('.difference-montant');
-                    differenceMontantCell.textContent = new Intl.NumberFormat('fr-FR').format(differenceMontant);
-                    differenceMontantCell.classList.add('montant-rouge');
+                        ecartsProduitsBody.appendChild(newRow);
+                    }
                 });
+
+                // Afficher le tableau des écarts
+                document.getElementById("produitsAvecEcartTable").style.display = "block";
             });
         });
+
+
     </script>
 
-  
-    
-
+    {{-- Mon js pour pdf --}}
     <script>
-        // Définir la fonction generatePDF à l'extérieur de la fonction click
+        // Fonction pour générer le PDF
         function generatePDF() {
             // Récupérer le contenu du tableau HTML
             var element = document.getElementById('my-table');
-
-            // Obtenez la date actuelle
+    
+            // Vérifier si l'élément existe
+            if (!element) {
+                console.error("Le tableau avec l'ID 'my-table' est introuvable.");
+                return;
+            }
+    
+            // Obtenir la date actuelle
             var today = new Date();
-
-            // Formatez la date en yyyy-mm-dd sans padStart
+    
+            // Formater la date en yyyy-mm-dd
             var day = ('0' + today.getDate()).slice(-2);
-            var month = ('0' + (today.getMonth() + 1)).slice(-2); // Les mois commencent à 0
+            var month = ('0' + (today.getMonth() + 1)).slice(-2);
             var year = today.getFullYear();
-
-            // Construisez la chaîne de date
+    
+            // Construire la chaîne de date
             var formattedDate = year + '-' + month + '-' + day;
-
-            // Créez le nom de fichier avec la date du jour
+    
+            // Créer le nom de fichier avec la date du jour
             var filename = 'Ecart_inventaire_gros_du_' + formattedDate + '.pdf';
     
             // Options pour la méthode html2pdf
             var opt = {
-                margin: 0.5,
+                margin: [20, 10, 20, 10], // Marges en haut, droite, bas, gauche (en millimètres)
                 filename: filename,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+                html2canvas: { 
+                    scale: 2, // Amélioration de la qualité
+                    useCORS: true, // Charger les ressources externes
+                    logging: false, // Désactiver les logs pour une meilleure performance
+                    dpi: 300 // Augmenter la résolution pour améliorer la qualité visuelle
+                },
+                jsPDF: { 
+                    unit: 'mm', // Unité de mesure en millimètres
+                    format: 'a4', // Format A4
+                    orientation: 'landscape', // Orientation paysage
+                    autoRotation: true // Rotation automatique si le contenu ne tient pas
+                }
             };
     
-            // Utiliser la méthode html2pdf pour générer le PDF à partir du contenu du tableau HTML
-            html2pdf().from(element).set(opt).save();
+            // Utiliser html2pdf avec les options définies
+            html2pdf()
+                .from(element) // Le contenu à convertir en PDF
+                .set(opt) // Appliquer les options
+                .toPdf()
+                .get('pdf')
+                .then(function (pdf) {
+                    // Vérifier si le tableau est trop grand et ajuster l'échelle si nécessaire
+                    var pageHeight = pdf.internal.pageSize.height;
+                    var contentHeight = element.scrollHeight;
+    
+                    if (contentHeight > pageHeight) {
+                        var scale = pageHeight / contentHeight;
+                        pdf.setScale(scale);
+                    }
+    
+                    console.log("PDF généré avec des marges et sans coupe de tableau !");
+                })
+                .save(); // Télécharger le PDF
         }
     </script>
+    
+    
+    
 @endsection
   
